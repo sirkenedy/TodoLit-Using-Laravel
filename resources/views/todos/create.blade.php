@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-	<h1>Creata Todo</h1>
+	<h1>Creata TodoList</h1>
 	{!! Form::open(['action' => 'Todoscontroller@store', 'method' => 'POST']) !!}
 		<div class="form-group">
 			{{Form::label('text', 'Text')}}
