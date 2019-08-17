@@ -3,10 +3,17 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\User;
 use App\Todo;
 
 class TodosController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -15,7 +22,11 @@ class TodosController extends Controller
     public function index()
     {
         //$todos = Todo::all();
-        $todos = Todo::orderBy('created_at', 'desc')->get();
+        $user_id = auth()->user()->id;
+        $todos = Todo::where('user_id',$user_id)->orderBy('created_at', 'desc')->get();
+        // $user = User::find($user_id);
+        // var_dump($todos);
+        // $todos = Todo::orderBy('created_at', 'desc')->get();
         return view('todos.index')->with('todos', $todos);
     }
 
@@ -39,6 +50,7 @@ class TodosController extends Controller
     {
         $this->validate($request, [
             'text' => 'required',
+            'user_id' => 'required',
 
         ]);
         //create Todo
@@ -46,6 +58,7 @@ class TodosController extends Controller
         $todo->text = $request->input('text');
         $todo->body = $request->input('body');
         $todo->due = $request->input('due');
+        $todo->user_id = $request->input('user_id');
 
         $todo->save();
 
@@ -60,8 +73,11 @@ class TodosController extends Controller
      */
     public function show($id)
     {
-        $todo = Todo::find($id);
-        return view('todos.show')->with('todo', $todo);
+         $userTodo = Todo::fetchTodoBaseOnUser($id);
+         if(!$userTodo) {
+             return view('error.404');
+           }
+          return view('todos.show')->with('todo', $userTodo);         
     }
 
     /**
@@ -72,8 +88,11 @@ class TodosController extends Controller
      */
     public function edit($id)
     {
-        $todo = Todo::find($id);
-        return view('todos.edit')->with('todo', $todo);
+        $userTodo = Todo::fetchTodoBaseOnUser($id);
+        if(!$userTodo) {
+            return view('error.404');
+        }
+        return view('todos.edit')->with('todo', $userTodo);
     }
 
     /**

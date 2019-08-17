@@ -14,3 +14,7 @@
 Route::get('/', 'Todoscontroller@index');
 
 Route::resource('todo', 'Todoscontroller');
+
+Auth::routes();
+
+Route::get('/dashboard', 'Todoscontroller@index')->name('home');
